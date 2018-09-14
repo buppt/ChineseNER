@@ -1,7 +1,7 @@
 # coding=utf-8
 import pickle
 import pdb
-with open('data/Bosondata.pkl', 'rb') as inp:
+with open('../data/Bosondata.pkl', 'rb') as inp:
 	word2id = pickle.load(inp)
 	id2word = pickle.load(inp)
 	tag2id = pickle.load(inp)
@@ -86,7 +86,6 @@ def calculate(x_test,y_test,epoch):
                 j+=1
                 continue
             else:
-                #print j,i
                 if j<len(predict) and (predict[j]>len(id2tag) or predict[j]==0):
                     j+=1
                     continue
@@ -118,30 +117,28 @@ def calculate(x_test,y_test,epoch):
     else:
         print "zhun:",0
 
-#calculate(x_test,y_test,1)
 
 st = ""
 for epoch in range(EPOCHS):
-        for sentence, tags in zip(x_train,y_train):
-		    # Step 1. Remember that Pytorch accumulates gradients.
-		    # We need to clear them out before each instance
-            model.zero_grad()
-		    # Step 2. Get our inputs ready for the network, that is,
-		    # turn them into Tensors of word indices.  
-            sentence=torch.tensor(sentence, dtype=torch.long)
-            tags = torch.tensor([tag2id[t] for t in tags], dtype=torch.long)
-		    # Step 3. Run our forward pass.
-            loss = model.neg_log_likelihood(sentence, tags)
-            
-		    # Step 4. Compute the loss, gradients, and update the parameters by
-		    # calling optimizer.step()
-            loss.backward()
-            optimizer.step()
+    index=0
+    for sentence, tags in zip(x_train,y_train):
+        index+=1
+        model.zero_grad()
 
-        calculate(x_test,y_test,epoch)
-        print "epoch:",epoch
+        sentence=torch.tensor(sentence, dtype=torch.long)
+        tags = torch.tensor([tag2id[t] for t in tags], dtype=torch.long)
+
+        loss = model.neg_log_likelihood(sentence, tags)
+
+        loss.backward()
+        optimizer.step()
+        if index%300==0:
+            print "epoch",epoch,"index",index
+
+    calculate(x_test,y_test,epoch)
+    print "epoch:",epoch
 
 
-torch.save(model, "data/model.pkl")
+torch.save(model, "./model/model.pkl")
 print "model has been saved"
 
