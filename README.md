@@ -13,7 +13,7 @@
 ## pytorch版
 直接用的<a href="https://pytorch.org/tutorials/beginner/nlp/advanced_tutorial.html">pytorch tutorial</a>里的Bilstm+crf模型.
 
-运行train.py训练即可。由于使用的是cpu，而且也没有使用batch，所以训练速度超级慢。但是pytorch比较容易上手。
+运行train.py训练即可。由于使用的是cpu，而且也没有使用batch，所以训练速度超级慢。想简单跑一下代码的话，建议只使用部分数据跑一下。
 
 ## tensorflow版
 运行train.py训练即可，tensorflow会自动检测并选择使用GPU或者CPU，使用的是tensorflow封装好的crf，使用了batch，训练速度比较快。

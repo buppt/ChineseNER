@@ -10,7 +10,7 @@ import math
 import tensorflow as tf
 from Batch import BatchGenerator
 import codecs
-#from acc_cal import calculate
+from resultCal import calculate
 
 with open('../data/Bosondata.pkl', 'rb') as inp:
 	word2id = pickle.load(inp)
@@ -91,60 +91,11 @@ train_op = optimizer.minimize(loss)
 
 saver = tf.train.Saver()
 
-def calculate(x,y,id2word,id2tag,res=[]):
-    entity=[]
-    for i in range(len(x)): #for every sen
-        for j in range(len(x[0])): #for every word
-            if x[i][j]==0 or y[i][j]==0:
-                continue
-            if id2tag[y[i][j]][0]=='B':
-                entity=[id2word[x[i][j]]+'/'+id2tag[y[i][j]]]
-            elif id2tag[y[i][j]][0]=='M' and len(entity)!=0 and entity[-1].split('/')[1][1:]==id2tag[y[i][j]][1:]:
-                entity.append(id2word[x[i][j]]+'/'+id2tag[y[i][j]])
-            elif id2tag[y[i][j]][0]=='E' and len(entity)!=0 and entity[-1].split('/')[1][1:]==id2tag[y[i][j]][1:]:
-                entity.append(id2word[x[i][j]]+'/'+id2tag[y[i][j]])
-                entity.append(str(i))
-                entity.append(str(j))
-                res.append(entity)
-                entity=[]
-            else:
-                entity=[]
-    return res
-    
-    
-def calculate3(x,y,id2word,id2tag,res=[]):
-    '''
-    使用这个函数可以把抽取出的实体写到res.txt文件中，供我们查看
-    '''
-    with codecs.open('./res.txt','a','utf-8') as outp:
-        entity=[]
-        for i in range(len(x)): #for every sen
-            for j in range(len(x[0])): #for every word
-                if x[i][j]==0 or y[i][j]==0:
-                    continue
-                if id2tag[y[i][j]][0]=='B':
-                    entity=[id2word[x[i][j]]+'/'+id2tag[y[i][j]]]
-                elif id2tag[y[i][j]][0]=='M' and len(entity)!=0 and entity[-1].split('/')[1][1:]==id2tag[y[i][j]][1:]:
-                    entity.append(id2word[x[i][j]]+'/'+id2tag[y[i][j]])
-                elif id2tag[y[i][j]][0]=='E' and len(entity)!=0 and entity[-1].split('/')[1][1:]==id2tag[y[i][j]][1:]:
-                    entity.append(id2word[x[i][j]]+'/'+id2tag[y[i][j]])
-                    entity.append(str(i))
-                    entity.append(str(j))
-                    res.append(entity)
-                    st = ""
-                    for s in entity:
-                        st += s+' '
-                    #print st
-                    outp.write(st+'\n')
-                    entity=[]
-                else:
-                    entity=[]
-    return res
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for epoch in range(training_epochs):
-        for batch in xrange(batch_num): 
+        for batch in range(batch_num): 
             x_batch, y_batch = data_train.next_batch(batch_size)
             feed_dict = {input_data:x_batch, labels:y_batch}
             pre,_ = sess.run([viterbi_sequence,train_op], feed_dict)
@@ -161,7 +112,7 @@ with tf.Session() as sess:
         print "model has been saved"
         entityres=[]
         entityall=[]
-        for batch in xrange(batch_num): 
+        for batch in range(batch_num): 
             x_batch, y_batch = data_train.next_batch(batch_size)
             feed_dict = {input_data:x_batch, labels:y_batch}
             pre = sess.run([viterbi_sequence], feed_dict)
@@ -181,7 +132,7 @@ with tf.Session() as sess:
 
         entityres=[]
         entityall=[]
-        for batch in xrange(batch_num_test): 
+        for batch in range(batch_num_test): 
             x_batch, y_batch = data_test.next_batch(batch_size)
             feed_dict = {input_data:x_batch, labels:y_batch}
             pre = sess.run([viterbi_sequence], feed_dict)
