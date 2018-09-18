@@ -66,7 +66,7 @@ lstm_bw_cell = tf.nn.rnn_cell.LSTMCell(embedding_size, forget_bias=1.0, state_is
                                                                  scope=None)
 
 bilstm_out = tf.concat([output_fw, output_bw], axis=2)
-bilstm_out = tf.nn.dropout(bilstm_out,0.5)
+
 
 # Fully connected layer.
 W = tf.get_variable(name="W", shape=[batch_size,2 * embedding_size, number_of_classes],
@@ -75,8 +75,8 @@ W = tf.get_variable(name="W", shape=[batch_size,2 * embedding_size, number_of_cl
 b = tf.get_variable(name="b", shape=[batch_size, num_units, number_of_classes], dtype=tf.float32,
                 initializer=tf.zeros_initializer())
 
-bilstm_out = tf.matmul(bilstm_out, W) + b
-bilstm_out = tf.nn.dropout(bilstm_out,0.5)
+bilstm_out = tf.tanh(tf.matmul(bilstm_out, W) + b)
+
 # Linear-CRF.
 log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(bilstm_out, labels, tf.tile(np.array([num_units]),np.array([batch_size])))
 
