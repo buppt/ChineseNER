@@ -13,10 +13,10 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 ## pytorch版
 直接用的<a href="https://pytorch.org/tutorials/beginner/nlp/advanced_tutorial.html">pytorch tutorial</a>里的Bilstm+crf模型.
 
-运行train.py训练即可。由于使用的是cpu，而且也没有使用batch，所以训练速度超级慢。想简单跑一下代码的话，建议只使用部分数据跑一下。
+运行train.py训练即可。由于使用的是cpu，而且也没有使用batch，所以训练速度超级慢。想简单跑一下代码的话，建议只使用部分数据跑一下。pytorch暂时不再更新。
 
 ## tensorflow版
-运行train.py训练即可，tensorflow会自动检测并选择使用GPU或者CPU，使用的是tensorflow封装好的crf，使用了batch，训练速度比较快。
+运行train.py训练即可，使用的是tensorflow封装好的crf，使用了batch，训练速度比较快。
 
 
 不定期增加其他修改。。
@@ -29,8 +29,8 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 
 
 ## 更新日志
-2018-9-15 增加tensorflow版本
+2018-9-15 增加tensorflow版本。
 
-2018-9-17 增加1998年人民日报数据集和MSRA微软亚洲研究院数据集
+2018-9-17 增加1998年人民日报数据集和MSRA微软亚洲研究院数据集。
 
-
+2018-9-19 简单修改了代码风格，将model提取出来，方便以后拓展。
