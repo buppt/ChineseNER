@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*
 import pickle
 import pdb
-
-import random as rand
-from random import random
-import numpy as np
+import codecs
+import re
+import sys
 import math
+
+
+
+import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import tensorflow as tf
 from Batch import BatchGenerator
-import codecs
-from resultCal import calculate
+from resultCal import calculate,get_entity
 from bilstm_crf import Model
+
 
 
 with open('../data/renmindata.pkl', 'rb') as inp:
@@ -36,13 +41,13 @@ print 'Finished creating the data generator.'
 
 
 
-training_epochs = 10
-batch_size = 16
+training_epochs = 21
+batch_size = 32
 
 config = {}
 config["lr"] = 0.001
 config["embedding_dim"] = 100
-config["dropout_keep"] = 0.5
+
 
 config["sen_len"] = len(x_train[0])
 config["batch_size"] = batch_size
@@ -52,10 +57,9 @@ config["tag_size"] = len(tag2id)
 batch_num = int(data_train.y.shape[0] / batch_size)  
 batch_num_test = int(data_test.y.shape[0] / batch_size) 
 
-  
+
     
 def train(model,sess):    
-    saver = tf.train.Saver()
     for epoch in range(training_epochs):
         for batch in range(batch_num): 
             x_batch, y_batch = data_train.next_batch(batch_size)
@@ -70,7 +74,7 @@ def train(model,sess):
                 print float(acc)/(len(y_batch)*len(y_batch[0]))
         path_name = "./model/model"+str(epoch)+".ckpt"
         print path_name
-        if True:#epoch%3==0:
+        if epoch%4==0:
             saver.save(sess, path_name)
             print "model has been saved"
             entityres=[]
@@ -113,12 +117,69 @@ def train(model,sess):
             else:
                 print "zhun:",0
 
+                
 
-model = Model(config)
-#saver.restore(sess, 'data/model9.ckpt')  
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    train(model,sess)
+def test_input(model,sess):
+    ckpt = tf.train.get_checkpoint_state('./model')
+    if ckpt is None:
+        print 'Model not found, please train your model first'
+        return
+    path = ckpt.model_checkpoint_path
+    print 'loading pre-trained model from %s.....' % path
+    saver.restore(sess, path)
+    
+    max_len = 60
+    def padding(ids):
+        if len(ids) >= max_len:  
+            return ids[:max_len]
+        else:
+            ids.extend([0]*(max_len-len(ids)))
+            return ids
+    while True:
+        text = raw_input("Enter your input: ").decode('utf-8');
+        text = re.split(u'[，。！？、‘’“”（）]', text) 
+        text_id=[]
+        for sen in text:
+            word_id=[]
+            for word in sen:
+                if word in word2id:
+                    word_id.append(word2id[word])
+                else:
+                    word_id.append(word2id["unknow"])
+            text_id.append(padding(word_id))
+        zero_padding=[]
+        zero_padding.extend([0]*max_len)
+        text_id.extend([zero_padding]*(batch_size-len(text_id)))    
+        feed_dict = {model.input_data:text_id}
+        pre = sess.run([model.viterbi_sequence], feed_dict)
+        entity = get_entity(text,pre[0],id2tag)
+        print 'result:'
+        for i in entity:
+            print i
+        '''
+        while True:
+        if len(text_id)>=batch_size:
+            model.pre
+            text_id = text_id[batch_size-1:]
+        else:
+            text_id.extend(zero_padding*(batch_size-len(text_id)))
+        '''
 
+
+if len(sys.argv)==2 and sys.argv[1]=="test":
+    print "begin to test..."
+    model = Model(config,dropout_keep=1)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver = tf.train.Saver()  
+        test_input(model,sess)
+else:
+    print "begin to train..."
+    model = Model(config,dropout_keep=0.5)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver = tf.train.Saver()  
+        train(model,sess)
+        
      
 

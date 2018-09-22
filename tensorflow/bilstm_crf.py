@@ -3,14 +3,14 @@ import numpy as np
 import tensorflow as tf
 
 class Model:
-    def __init__(self,config):
+    def __init__(self,config,dropout_keep=1):
         self.lr = config["lr"]
         self.batch_size = config["batch_size"]
         self.embedding_size = config["embedding_size"]
         self.embedding_dim = config["embedding_dim"] 
         self.sen_len = config["sen_len"]
         self.tag_size = config["tag_size"]
-        self.dropout_keep = config["dropout_keep"]
+        self.dropout_keep = dropout_keep
         
         self.input_data = tf.placeholder(tf.int32, shape=[self.batch_size,self.sen_len], name="input_data") 
         self.labels = tf.placeholder(tf.int32,shape=[self.batch_size,self.sen_len], name="labels")
@@ -43,12 +43,12 @@ class Model:
         bilstm_out = tf.tanh(tf.matmul(bilstm_out, W) + b)
 
         # Linear-CRF.
-        log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(bilstm_out, self.labels, tf.tile(np.array([self.sen_len]),np.array([self.batch_size])))
+        log_likelihood, self.transition_params = tf.contrib.crf.crf_log_likelihood(bilstm_out, self.labels, tf.tile(np.array([self.sen_len]),np.array([self.batch_size])))
 
         loss = tf.reduce_mean(-log_likelihood)
 
         # Compute the viterbi sequence and score (used for prediction and test time).
-        self.viterbi_sequence, viterbi_score = tf.contrib.crf.crf_decode(bilstm_out, transition_params,tf.tile(np.array([self.sen_len]),np.array([self.batch_size])))
+        self.viterbi_sequence, viterbi_score = tf.contrib.crf.crf_decode(bilstm_out, self.transition_params,tf.tile(np.array([self.sen_len]),np.array([self.batch_size])))
 
         # Training ops.
         optimizer = tf.train.AdamOptimizer(self.lr)

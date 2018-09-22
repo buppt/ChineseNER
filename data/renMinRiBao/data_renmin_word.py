@@ -103,6 +103,7 @@ def data2pkl():
     id2word = pd.Series(set_words, index=set_ids)
     tag2id = pd.Series(tag_ids, index=tags)
     id2tag = pd.Series(tags, index=tag_ids)
+    word2id["unknow"]=len(word2id)+1
     print tag2id
     max_len = 60
     def X_padding(words):

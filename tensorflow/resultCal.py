@@ -1,5 +1,24 @@
 # coding=utf-8
 import codecs
+def get_entity(x,y,id2tag):
+    entity=""
+    res=[]
+    for i in range(len(x)): #for every sen
+        for j in range(len(x[0])): #for every word
+            if y[i][j]==0:
+                continue
+            if id2tag[y[i][j]][0]=='B':
+                entity=id2tag[y[i][j]][1:]+':'+x[i][j]
+            elif id2tag[y[i][j]][0]=='M' and len(entity)!=0 :
+                entity+=x[i][j]
+            elif id2tag[y[i][j]][0]=='E' and len(entity)!=0 :
+                entity+=x[i][j]
+                res.append(entity)
+                entity=[]
+            else:
+                entity=[]
+    return res
+    
 def calculate(x,y,id2word,id2tag,res=[]):
     entity=[]
     for i in range(len(x)): #for every sen

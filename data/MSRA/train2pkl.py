@@ -99,8 +99,8 @@ set_words = sr_allwords.index
 set_ids = range(1, len(set_words)+1)    
 word2id = pd.Series(set_ids, index=set_words)
 id2word = pd.Series(set_words, index=set_ids)
-id2word[0] = ''
-print 'word2id len',len(id2word)
+
+word2id["unknow"] = len(word2id)+1
 
 
 max_len = 50
@@ -129,8 +129,7 @@ from sklearn.model_selection import train_test_split
 x_train,x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=43)
 x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train,  test_size=0.2, random_state=43)
 
-print x_train
-print y_train
+
 print 'Finished creating the data generator.'
 import pickle
 import os

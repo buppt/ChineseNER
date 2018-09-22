@@ -31,7 +31,7 @@ def data2pkl():
             labels.append(linelabel)
 
     input_data.close()
-    print len(datas)
+    print len(datas),tags
     print len(labels)
     from compiler.ast import flatten
     all_words = flatten(datas)
@@ -48,7 +48,8 @@ def data2pkl():
     tag2id = pd.Series(tag_ids, index=tags)
     id2tag = pd.Series(tags, index=tag_ids)
 
-
+    word2id["unknow"] = len(word2id)+1
+    print word2id
     max_len = 60
     def X_padding(words):
         ids = list(word2id[words])
@@ -73,7 +74,7 @@ def data2pkl():
     x_train,x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=43)
     x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train,  test_size=0.2, random_state=43)
 
-
+    
     import pickle
     import os
     with open('../Bosondata.pkl', 'wb') as outp:
