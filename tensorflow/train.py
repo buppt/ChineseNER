@@ -9,8 +9,7 @@ import math
 
 
 import numpy as np
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
 import tensorflow as tf
 from Batch import BatchGenerator
 from resultCal import calculate,get_entity
@@ -38,7 +37,22 @@ data_valid = BatchGenerator(x_valid, y_valid, shuffle=False)
 data_test = BatchGenerator(x_test, y_test, shuffle=False)
 print 'Finished creating the data generator.'
 
+word2vec = {}
+with codecs.open('vec.txt','r','utf-8') as input_data:   
+    for line in input_data.readlines():
+        word2vec[line.split()[0]] = map(eval,line.split()[1:])
 
+embedding_pre = []
+unknow_pre = []
+unknow_pre.extend([0]*100)
+embedding_pre.append(unknow_pre) #wordvec id 0
+for word in word2id:
+    if word2vec.has_key(word):
+        embedding_pre.append(word2vec[word])
+    else:
+        embedding_pre.append(unknow_pre)
+
+embedding_pre = np.asarray(embedding_pre)
 
 
 training_epochs = 21
@@ -63,7 +77,7 @@ def train(model,sess):
     for epoch in range(training_epochs):
         for batch in range(batch_num): 
             x_batch, y_batch = data_train.next_batch(batch_size)
-            feed_dict = {model.input_data:x_batch, model.labels:y_batch}
+            feed_dict = {model.input_data:x_batch, model.labels:y_batch, model.embedding_placeholder:embedding_pre}
             pre,_ = sess.run([model.viterbi_sequence,model.train_op], feed_dict)
             acc = 0
             if batch%100==0:
@@ -74,14 +88,14 @@ def train(model,sess):
                 print float(acc)/(len(y_batch)*len(y_batch[0]))
         path_name = "./model/model"+str(epoch)+".ckpt"
         print path_name
-        if epoch%4==0:
+        if epoch%2==0:
             saver.save(sess, path_name)
             print "model has been saved"
             entityres=[]
             entityall=[]
             for batch in range(batch_num): 
                 x_batch, y_batch = data_train.next_batch(batch_size)
-                feed_dict = {model.input_data:x_batch, model.labels:y_batch}
+                feed_dict = {model.input_data:x_batch, model.labels:y_batch, model.embedding_placeholder:embedding_pre}
                 pre = sess.run([model.viterbi_sequence], feed_dict)
                 pre = pre[0]
                 entityres = calculate(x_batch,pre,id2word,id2tag,entityres)
@@ -101,7 +115,7 @@ def train(model,sess):
             entityall=[]
             for batch in range(batch_num_test): 
                 x_batch, y_batch = data_test.next_batch(batch_size)
-                feed_dict = {model.input_data:x_batch, model.labels:y_batch}
+                feed_dict = {model.input_data:x_batch, model.labels:y_batch, model.embedding_placeholder:embedding_pre}
                 pre = sess.run([model.viterbi_sequence], feed_dict)
                 pre = pre[0]
                 entityres = calculate(x_batch,pre,id2word,id2tag,entityres)

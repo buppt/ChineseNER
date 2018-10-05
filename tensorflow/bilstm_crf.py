@@ -14,10 +14,13 @@ class Model:
         
         self.input_data = tf.placeholder(tf.int32, shape=[self.batch_size,self.sen_len], name="input_data") 
         self.labels = tf.placeholder(tf.int32,shape=[self.batch_size,self.sen_len], name="labels")
+        self.embedding_placeholder = tf.placeholder(tf.float32,shape=[self.embedding_size,self.embedding_dim], name="embedding_placeholder")
         with tf.variable_scope("bilstm_crf") as scope:
             self._build_net()
     def _build_net(self):
         word_embeddings = tf.get_variable("word_embeddings",[self.embedding_size, self.embedding_dim])
+        embeddings_init = word_embeddings.assign(self.embedding_placeholder)
+
         input_embedded = tf.nn.embedding_lookup(word_embeddings, self.input_data)
         input_embedded = tf.nn.dropout(input_embedded,self.dropout_keep)
 
