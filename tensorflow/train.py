@@ -37,23 +37,6 @@ data_valid = BatchGenerator(x_valid, y_valid, shuffle=False)
 data_test = BatchGenerator(x_test, y_test, shuffle=False)
 print 'Finished creating the data generator.'
 
-word2vec = {}
-with codecs.open('vec.txt','r','utf-8') as input_data:   
-    for line in input_data.readlines():
-        word2vec[line.split()[0]] = map(eval,line.split()[1:])
-
-embedding_pre = []
-unknow_pre = []
-unknow_pre.extend([0]*100)
-embedding_pre.append(unknow_pre) #wordvec id 0
-for word in word2id:
-    if word2vec.has_key(word):
-        embedding_pre.append(word2vec[word])
-    else:
-        embedding_pre.append(unknow_pre)
-
-embedding_pre = np.asarray(embedding_pre)
-
 
 training_epochs = 21
 batch_size = 32
@@ -61,23 +44,45 @@ batch_size = 32
 config = {}
 config["lr"] = 0.001
 config["embedding_dim"] = 100
-
-
 config["sen_len"] = len(x_train[0])
 config["batch_size"] = batch_size
 config["embedding_size"] = len(word2id)+1
 config["tag_size"] = len(tag2id)
 
+
 batch_num = int(data_train.y.shape[0] / batch_size)  
 batch_num_test = int(data_test.y.shape[0] / batch_size) 
 
+embedding_pre = []
 
+if len(sys.argv)==2 and sys.argv[1]=="pretrained":
+    print "use pretrained embedding"
+    config["pretrained"]=True
+    word2vec = {}
+    with codecs.open('vec.txt','r','utf-8') as input_data:   
+        for line in input_data.readlines():
+            word2vec[line.split()[0]] = map(eval,line.split()[1:])
+
+    unknow_pre = []
+    unknow_pre.extend([1]*100)
+    embedding_pre.append(unknow_pre) #wordvec id 0
+    for word in word2id:
+        if word2vec.has_key(word):
+            embedding_pre.append(word2vec[word])
+        else:
+            embedding_pre.append(unknow_pre)
+
+    embedding_pre = np.asarray(embedding_pre)
+else:
+    config["pretrained"]=False
+    
     
 def train(model,sess):    
     for epoch in range(training_epochs):
         for batch in range(batch_num): 
             x_batch, y_batch = data_train.next_batch(batch_size)
-            feed_dict = {model.input_data:x_batch, model.labels:y_batch, model.embedding_placeholder:embedding_pre}
+            
+            feed_dict = {model.input_data:x_batch, model.labels:y_batch}
             pre,_ = sess.run([model.viterbi_sequence,model.train_op], feed_dict)
             acc = 0
             if batch%100==0:
@@ -95,7 +100,7 @@ def train(model,sess):
             entityall=[]
             for batch in range(batch_num): 
                 x_batch, y_batch = data_train.next_batch(batch_size)
-                feed_dict = {model.input_data:x_batch, model.labels:y_batch, model.embedding_placeholder:embedding_pre}
+                feed_dict = {model.input_data:x_batch, model.labels:y_batch}
                 pre = sess.run([model.viterbi_sequence], feed_dict)
                 pre = pre[0]
                 entityres = calculate(x_batch,pre,id2word,id2tag,entityres)
@@ -115,7 +120,7 @@ def train(model,sess):
             entityall=[]
             for batch in range(batch_num_test): 
                 x_batch, y_batch = data_test.next_batch(batch_size)
-                feed_dict = {model.input_data:x_batch, model.labels:y_batch, model.embedding_placeholder:embedding_pre}
+                feed_dict = {model.input_data:x_batch, model.labels:y_batch}
                 pre = sess.run([model.viterbi_sequence], feed_dict)
                 pre = pre[0]
                 entityres = calculate(x_batch,pre,id2word,id2tag,entityres)
@@ -182,14 +187,14 @@ def test_input(model,sess):
 
 if len(sys.argv)==2 and sys.argv[1]=="test":
     print "begin to test..."
-    model = Model(config,dropout_keep=1)
+    model = Model(config,embedding_pre,dropout_keep=1)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()  
         test_input(model,sess)
 else:
     print "begin to train..."
-    model = Model(config,dropout_keep=0.5)
+    model = Model(config,embedding_pre,dropout_keep=0.5)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()  

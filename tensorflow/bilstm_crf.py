@@ -3,15 +3,16 @@ import numpy as np
 import tensorflow as tf
 
 class Model:
-    def __init__(self,config,dropout_keep=1):
+    def __init__(self,config,embedding_pretrained,dropout_keep=1):
         self.lr = config["lr"]
         self.batch_size = config["batch_size"]
         self.embedding_size = config["embedding_size"]
         self.embedding_dim = config["embedding_dim"] 
         self.sen_len = config["sen_len"]
         self.tag_size = config["tag_size"]
+        self.pretrained = config["pretrained"]
         self.dropout_keep = dropout_keep
-        
+        self.embedding_pretrained = embedding_pretrained
         self.input_data = tf.placeholder(tf.int32, shape=[self.batch_size,self.sen_len], name="input_data") 
         self.labels = tf.placeholder(tf.int32,shape=[self.batch_size,self.sen_len], name="labels")
         self.embedding_placeholder = tf.placeholder(tf.float32,shape=[self.embedding_size,self.embedding_dim], name="embedding_placeholder")
@@ -19,7 +20,8 @@ class Model:
             self._build_net()
     def _build_net(self):
         word_embeddings = tf.get_variable("word_embeddings",[self.embedding_size, self.embedding_dim])
-        embeddings_init = word_embeddings.assign(self.embedding_placeholder)
+        if self.pretrained:
+            embeddings_init = word_embeddings.assign(self.embedding_pretrained)
 
         input_embedded = tf.nn.embedding_lookup(word_embeddings, self.input_data)
         input_embedded = tf.nn.dropout(input_embedded,self.dropout_keep)
