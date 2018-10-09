@@ -1,7 +1,11 @@
 # ChineseNER
-本项目使用的是python2.7
+本项目使用
++ python 2.7
++ tensorflow 1.7.0
++ pytorch 0.4.0
 
-对命名实体识别不了解的可以先看一下<a href="https://blog.csdn.net/buppt/article/details/81180361">这篇文章</a>。
+
+对命名实体识别不了解的可以先看一下<a href="https://blog.csdn.net/buppt/article/details/81180361">这篇文章</a>。顺便求star～
 
 这是最简单的一个命名实体识别BiLSTM+CRF模型。
 
