@@ -24,9 +24,16 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 
 使用 `python train.py pretrained` 会使用预训练的词向量开始训练，vec.txt是在网上找的一个比较小的预训练词向量，可以参照我的代码修改使用其他更好的预训练词向量。
 
-使用 `python train.py test` 进行测试，会自动读取model文件夹中最新的模型，输入中文测试即可，测试结果当然根据模型的准确度而定。
+使用 `python train.py test` 进行测试，会自动读取model文件夹中最新的模型，输入中文测试即可，测试结果好坏根据模型的准确度而定。
 
 <img src="./test.png"/>
+
+
+使用 `python train.py input_file output_file` 进行文件级实体抽取，会自动读取model文件夹中最新的模型，将`input_file`中的实体抽取出来写入`output_file`中。先是原句，然后是实体类型及实体（可按照需要修改）。
+
+如 `python train.py test1.txt res.txt` , res.txt内容如下：
+
+<img src="./test2.png"/>
 
 
 
@@ -51,3 +58,5 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 2018-10-5 增加使用预训练词向量进行训练。
 
 2018-10-6 增加使用参数确定是否使用预训练词向量进行训练。
+
+2018-10-11 增加功能：可以抽取一个文本文件中的实体，写入另一个文件中。
