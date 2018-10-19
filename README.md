@@ -9,11 +9,11 @@
 
 这是最简单的一个命名实体识别BiLSTM+CRF模型。
 
+## 数据
 data文件夹中有三个开源数据集可供使用，玻森数据 (https://bosonnlp.com) 、1998年人民日报标注数据、MSRA微软亚洲研究院开源数据。其中boson数据集有6种实体类型，人民日报语料和MSRA一般只提取人名、地名、组织名三种实体类型。
 
-先运行数据中的py文件处理数据，供模型使用。
-然后运行pytorch或tensorflow中的train.py。
-模型会保存到相应的model文件夹中，可以在训练好的模型的基础上继续训练。
+先运行数据中的python文件处理数据，供模型使用。
+
 ## pytorch版
 直接用的<a href="https://pytorch.org/tutorials/beginner/nlp/advanced_tutorial.html">pytorch tutorial</a>里的Bilstm+crf模型.
 
@@ -29,7 +29,9 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 <img src="./test.png" width="70%"/>
 
 
-使用 `python train.py input_file output_file` 进行文件级实体抽取，会自动读取model文件夹中最新的模型，将`input_file`中的实体抽取出来写入`output_file`中。先是原句，然后是实体类型及实体（可按照需要修改）。
+使用 `python train.py input_file output_file` 进行文件级实体抽取。
+
+可以自动读取model文件夹中最新的模型，将`input_file`中的实体抽取出来写入`output_file`中。先是原句，然后是实体类型及实体（可按照需要修改）。
 
 如 `python train.py test1.txt res.txt` , res.txt内容如下：
 
@@ -39,8 +41,8 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 
 不定期增加其他修改。。
 
-
-参数并没有调的太仔细，boson数据集的f值在70%~75%左右，人民日报和MSRA数据集的f值在90%左右。（毕竟boson有6种实体类型，另外两个只有3种。）
+## 准确率
+参数并没有调的太仔细，boson数据集的f值在70%~75%左右，人民日报和MSRA数据集的f值在85%~90%左右。（毕竟boson有6种实体类型，另外两个只有3种）
 
 
 
@@ -53,9 +55,7 @@ data文件夹中有三个开源数据集可供使用，玻森数据 (https://bos
 
 2018-9-19 简单修改了代码风格，将model提取出来，方便以后拓展。
 
-2018-9-22 增加使用训练好的model，提取从命令行输入代码的实体功能。
-
-2018-10-5 增加使用预训练词向量进行训练。
+2018-9-22 增加 `python train.py test` 功能。
 
 2018-10-6 增加使用参数确定是否使用预训练词向量进行训练。
 
