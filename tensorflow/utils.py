@@ -71,7 +71,7 @@ def train(model,sess,saver,epochs,batch_size,data_train,data_test,id2word,id2tag
     for epoch in range(epochs):
         for batch in range(batch_num): 
             x_batch, y_batch = data_train.next_batch(batch_size)
-            print x_batch.shape
+            # print x_batch.shape
             feed_dict = {model.input_data:x_batch, model.labels:y_batch}
             pre,_ = sess.run([model.viterbi_sequence,model.train_op], feed_dict)
             acc = 0
