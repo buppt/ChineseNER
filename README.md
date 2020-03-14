@@ -5,7 +5,7 @@
 + pytorch 0.4.0
 
 
-对命名实体识别不了解的可以先看一下<a href="https://buppt.github.io/2018/07/27/n23-ner-note/" target="_blank">这篇文章</a>。顺便求star～
+对命名实体识别不了解的可以先看一下<a href="https://mp.weixin.qq.com/s?__biz=MzI4NjMyNzY2OQ==&mid=2247483667&idx=1&sn=6e50e474e302afbb4f37f5f53c8030db&chksm=ebdfd709dca85e1f37116fd1cbec6df6f6bbeb2cbdb0384e907b43c48a70d5e2de7deda0fa6b&token=1494078652&lang=zh_CN#rd" target="_blank">这篇文章</a>。顺便求star～
 
 这是最简单的一个命名实体识别BiLSTM+CRF模型。
 
